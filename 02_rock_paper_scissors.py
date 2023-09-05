@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-## Advent of Code 2022 - Calorie Counting
-## https://adventofcode.com/2022/day/1
+## Advent of Code 2022 - Rock Paper Scissors
+## https://adventofcode.com/2022/day/2
 
 import os
 import sys
