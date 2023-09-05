@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-## Advent of Code 2022 - Calorie Counting
+## Advent of Code 2022
+## Day 1 - Calorie Counting
 ## https://adventofcode.com/2022/day/1
 
 import os
@@ -18,5 +19,11 @@ with open("input01.txt") as f:
             elves.append(cals)
             cals = 0
 elves.sort(reverse=True)
-print(str(elves[0]))
+
+print("Part One:")
+print(str(elves[0]) + "\n")
+
+print("Part Two:")
+print(str(sum(elves[0:3])) + "\n")
+
 exit(0)

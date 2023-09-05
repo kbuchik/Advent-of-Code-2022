@@ -23,7 +23,6 @@ p2Score = 0
 
 with open("input02.txt") as f:
     for line in f:
-        points = 0
         line = line.rstrip()
         if line:
             p1Score += shapeScore[line[2]]
