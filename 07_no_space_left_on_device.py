@@ -8,29 +8,68 @@ import os
 import sys
 from treelib import Node, Tree
 
-dirtree = Tree()
 cdir = "/"
+dirtree = Tree()
+dirsizes = dict()
+maxSize = 100000
+sizeTotal = 0
+dupe_correct = 1
 
-# Accepts a list containing the result of an "ls" command, one file per list entry
-def countDirSize(dirlist):
+# Recursive function to the count the size of a directory and all children
+def calcDirSize(directory):
+    global sizeCount
     size = 0
-    for x in dirlist:
-        f = x.split(' ')
-        if x[0] == "dir":
-            continue
-        else:
-            size += f[0]
+    contents = dirtree.children(directory)
+    for n in contents:
+        if n.data:
+            size += n.data
+        if len(dirtree.children(n.tag)) > 0:
+            size += calcDirSize(n.tag)
+    if size > 0 and size <= maxSize:
+        dirsizes[directory] = size
     return size
 
+# Add the file represented by the given ls listing line (fline) to the tree, with cdir as parent
 def addFileNode(fline):
+    global dupe_correct
     fl = line.split(" ")
-    if not dirtree.get_node(fl[1]):
-        if fl[0] == "dir":
-            dirtree.create_node(fl[1], fl[1], parent=cdir, data=0)
-            print("Added dir node: " + fl[1])
+    name = fl[1]
+    if dirtree.get_node(name):
+        if dirtree.parent(name).tag == cdir:
+            print("Actual duplicate add detected: " + fline)
+            return
         else:
-            dirtree.create_node(fl[1], fl[1], parent=cdir, data=int(fl[0]))
-            print("Added file node: " + fl[1] + " with size " + fl[0])
+            name = name + "_" + str(dupe_correct)
+            dupe_correct += 1
+    if fl[0] == "dir":
+        dirtree.create_node(name, name, parent=cdir)
+    else:
+        dirtree.create_node(name, name, parent=cdir, data=int(fl[0]))
+
+# Print out tree structure for the given directory
+def printDirListing(query):
+    fnode = dirtree.get_node(query)
+    if not fnode:
+        print("No file or directory with name \"" + query + "\" exists in tree")
+    else:
+        print(dirListing(query))
+
+
+# Get a string representing the tree structure of the given directory
+def dirListing(query, treeStr="", tabLevel=0):
+    fnode = dirtree.get_node(query)
+    if not fnode:
+        return treeStr
+    treeStr += "\t" * tabLevel
+    if fnode.data:
+        return treeStr + "- {0} (file, size={1})".format(fnode.tag, str(fnode.data))
+    else:
+        contents = dirtree.children(fnode.tag)
+        treeStr += "+ {0} (dir)".format(fnode.tag)
+        for i in contents:
+            treeStr += "\n"
+            treeStr = dirListing(i.tag, treeStr=treeStr, tabLevel=tabLevel+1)
+        return treeStr
 
 with open("input07.txt") as f:
     listMode = False
@@ -49,21 +88,23 @@ with open("input07.txt") as f:
             listMode = True
         elif line == "$ cd ..":
             if cdir != "/":
-                pdir = dirtree.parent(cdir).tag
-                cdir = pdir
-                print("Directory moved up to: " + cdir)
+                cdir = dirtree.parent(cdir).tag
             continue
         elif line.startswith("$ cd"):
             entry = line.split(" ")
             cdir = entry[2]
-            print("Directory changed in to: " + cdir)
         
-#dirtree.show()
+printDirListing("/")
 exit(0)
+dirtreeSize = calcDirSize("/")
+print("All directories with size < " + str(maxSize))
+for dirname,size in dirsizes.items():
+    print(dirname + ": " + str(size))
+    sizeTotal += size
+print()
 
 print("Part One:")
-
-print("Part Two:")
-
+print(str(sizeTotal) + "\n")
+#print("Part Two:")
 
 exit(0)
