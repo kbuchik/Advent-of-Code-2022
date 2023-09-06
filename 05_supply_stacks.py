@@ -4,11 +4,13 @@
 ## Day 5 - Supply Stacks
 ## https://adventofcode.com/2022/day/5
 
+import copy
 import os
 import sys
 from collections import deque
 
 stacks = list()
+bulkStacks = list()
 for x in range (0,9):
     stacks.append(deque())
 stackmap = list()
@@ -18,8 +20,15 @@ def doMove(num, source, target):
     for x in range(0, num):
         stacks[target - 1].append(stacks[source - 1].pop())
 
-def printStacks():
-    for s in stacks:
+def doBulkMove(num, source, target):
+    tmp = list()
+    for x in range(0, num):
+        tmp.append(bulkStacks[source - 1].pop())
+    for y in reversed(tmp):
+        bulkStacks[target - 1].append(y)
+
+def printStacks(stx):
+    for s in stx:
         txt = ""
         for i in s:
             txt += i
@@ -53,17 +62,23 @@ for l in reversed(stackmap):
                 stacks[col].append(l[i])
             row += str(int(((i - 1) / 4) + 1)) + ": " + l[i] + ", "
 
-printStacks()
+bulkStacks = copy.deepcopy(stacks)
 
 for move in moves:
     m = move.split(' ')
     doMove(int(m[1]), int(m[3]), int(m[5]))
+    doBulkMove(int(m[1]), int(m[3]), int(m[5]))
 
-tops = ""
+
+tops1 = ""
+tops2 = ""
 for s in stacks:
-    tops += s[len(s) - 1]
+    tops1 += s[len(s) - 1]
+for s in bulkStacks:
+    tops2 += s[len(s) - 1]
 
 print("Part One:")
-print(tops + "\n")
+print(tops1 + "\n")
 print("Part Two:")
+print(tops2 + "\n")
 exit(0)
