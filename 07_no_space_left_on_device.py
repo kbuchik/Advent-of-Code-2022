@@ -8,19 +8,23 @@ import os
 import sys
 from treelib import Node, Tree
 
+MAX_SIZE = 100000
+FS_CAPACITY = 70000000
+FREE_TARGET = 30000000
+
 currNode = None
 dirtree = Tree()
-dirsizes = dict()
-sizeTotal = 0
+part1dirs = dict()
+part2dirs = dict()
+part1size = 0
+part2size = FS_CAPACITY
 tabstr = "    "
 dir_id = 1
 file_id = 1
 
-MAX_SIZE = 100000
-
 # Recursive function to the count the size of a directory (identifier, not tag/name) and all children
-def calcDirSize(directory):
-    global sizeTotal, dirsizes
+def calcDirSize(directory, freeTarget=0):
+    global part1size, part1dirs, part2size
     dirNode = dirtree.get_node(directory)
     if not dirNode or dirNode.data:
         print("Error: calcDirSize() couldn't find directory with id: " + directory)
@@ -30,12 +34,22 @@ def calcDirSize(directory):
         if n.data:
             size += n.data
         if len(dirtree.children(n.identifier)) > 0:
-            size += calcDirSize(n.identifier)
+            size += calcDirSize(n.identifier, freeTarget=freeTarget)
+    # Part 1 calculation
     if size <= MAX_SIZE:
         dirkey = dirNode.tag + "|" + dirNode.identifier
-        dirsizes[dirkey] = size
-        sizeTotal += size
+        part1dirs[dirkey] = size
+        part1size += size
+    # Part 2 calculation
+    if freeTarget > 0 and size >= freeTarget:
+        if size < part2size:
+            part2size = size
     return size
+
+# Returns the size of the smallest directory with size larger than the given target
+def findTargetDirsize(target):
+
+    pass
 
 # Add the file represented by the given ls listing line (fline) to the tree, assuming currNode to be the parent
 def addFileNode(fline):
@@ -49,16 +63,16 @@ def addFileNode(fline):
         file_id += 1
  
 # Print out tree structure for the given directory
-def printDirListing(query, dirSizes=False):
+def printDirListing(query, part1dirs=False):
     fnode = dirtree.get_node(query)
     if not fnode:
         print("No file or directory with id \"" + query + "\" exists in tree")
     else:
-        print(dirListing(query, dirSizes=dirSizes))
+        print(dirListing(query, part1dirs=part1dirs))
 
 
 # Get a string representing the tree structure of the given directory
-def dirListing(query, treeStr="", tabLevel=0, dirSizes=False):
+def dirListing(query, treeStr="", tabLevel=0, part1dirs=False):
     fnode = dirtree.get_node(query)
     if not fnode:
         return treeStr
@@ -69,13 +83,13 @@ def dirListing(query, treeStr="", tabLevel=0, dirSizes=False):
     else:
         contents = dirtree.children(fnode.identifier)
         fline = "+ {0} (dir".format(fnode.tag)
-        if dirSizes:
+        if part1dirs:
             fline += ", size=" + str(calcDirSize(fnode.identifier))
         fline += ")"
         treeStr += fline
         for i in contents:
             treeStr += "\n"
-            treeStr = dirListing(i.identifier, treeStr=treeStr, tabLevel=tabLevel+1, dirSizes=dirSizes)
+            treeStr = dirListing(i.identifier, treeStr=treeStr, tabLevel=tabLevel+1, part1dirs=part1dirs)
         return treeStr
 
 with open("input07.txt") as f:
@@ -105,21 +119,28 @@ with open("input07.txt") as f:
                 if fl.tag == entry[2] and not fl.data:
                     currNode = fl
  
-#printDirListing("dir_0", dirSizes=True)
+#printDirListing("dir_0", part1dirs=True)
 #exit(0)
-sizeTotal = 0
-dirtreeSize = calcDirSize("dir_0")
-#print("Total filesystem size: " + str(dirtreeSize))
 
+part1size = 0
+spaceUsed = calcDirSize("dir_0")
+spaceFree = FS_CAPACITY - spaceUsed
+freeRemaining = FREE_TARGET - spaceFree
+
+print("{0} / {1} bytes in use, {2} bytes free".format(spaceUsed, FS_CAPACITY, spaceFree))
+print("{0} remaining bytes to free of {1} needed for update".format(freeRemaining, FREE_TARGET))
+print()
+calcDirSize("dir_0", freeTarget=freeRemaining)
 '''
 print("All directories with size < " + str(maxSize))
-for dirname,size in dirsizes.items():
+for dirname,size in part1dirs.items():
     print(dirname + ": " + str(size))
 print()
 '''
 
 print("Part One:")
-print(str(sizeTotal) + "\n")
-#print("Part Two:")
+print(str(part1size) + "\n")
+print("Part Two:")
+print(str(part2size) + "\n")
 
 exit(0)
