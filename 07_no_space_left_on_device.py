@@ -8,17 +8,15 @@ import os
 import sys
 from treelib import Node, Tree
 
-cdir = "/"
 currNode = None
 dirtree = Tree()
 dirsizes = dict()
-maxSize = 100000
 sizeTotal = 0
-dupe_correct = 1
 tabstr = "    "
-
 dir_id = 1
 file_id = 1
+
+MAX_SIZE = 100000
 
 # Recursive function to the count the size of a directory (identifier, not tag/name) and all children
 def calcDirSize(directory):
@@ -33,7 +31,7 @@ def calcDirSize(directory):
             size += n.data
         if len(dirtree.children(n.identifier)) > 0:
             size += calcDirSize(n.identifier)
-    if size <= maxSize:
+    if size <= MAX_SIZE:
         dirkey = dirNode.tag + "|" + dirNode.identifier
         dirsizes[dirkey] = size
         sizeTotal += size
