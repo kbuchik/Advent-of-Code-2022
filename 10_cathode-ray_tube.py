@@ -17,14 +17,7 @@ CRT = list()
 
 part1sum = 0
 targetCycles = [20, 60, 100, 140, 180, 220]
-debug = True
-
-def incCycle(c=1):
-    global cycle, register, part1sum
-    cycle += c
-    if cycle in targetCycles:
-        part1sum += cycle * register
-    drawPixel(pix=register, cyc=cycle)
+debug = False
 
 def cycleOps():
     global cycle, register, part1sum
@@ -40,12 +33,17 @@ def initCRT():
             row.append(' ')
         CRT.append(row)
 
+def drawCRT():
+    row = ""
+    for r in CRT:
+        print(''.join(r))
+    print()
+
 def drawPixel(pix=register, cyc=cycle):
     pos = (cyc % 240)
     row = math.floor(pos / 40)
     col = (pos % 40) - 1
     pixframe = [((pix - 1) % 40), (pix % 40), ((pix + 1) % 40)]
-    #print("Register: {0}; pixframe: {1}".format(register, str(pixframe)))
     p = '.'
     if col in pixframe:
         p = '#'
@@ -53,12 +51,6 @@ def drawPixel(pix=register, cyc=cycle):
     if debug:
         print("During cycle {0}: CRT draws pixel {1} in position {2}".format(cyc, p, col))
         print("Current CRT row: " + ''.join(CRT[row]))
-
-def drawCRT():
-    row = ""
-    for r in CRT:
-        print(''.join(r))
-    print()
 
 initCRT()
 
