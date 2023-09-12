@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-## Advent of Code 2022 - Rock Paper Scissors
+## Advent of Code 2022
+## Day 2 - Rock Paper Scissors
 ## https://adventofcode.com/2022/day/2
 
 import os
